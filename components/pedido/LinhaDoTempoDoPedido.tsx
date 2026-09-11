@@ -21,12 +21,6 @@ export default function LinhaDoTempoDoPedido({ status }: { status: StatusPedido 
     const falhou = status === STATUS_FALHOU;
     const acompanhando = !falhou && status !== ETAPA_FINAL;
 
-    /*
-     * Polling no lugar de WebSocket. `router.refresh()` refaz o Server
-     * Component da pagina, que rebusca o pedido e devolve o status novo por
-     * prop — nao ha estado duplicado no cliente. Para de criar o intervalo
-     * assim que o pedido chega num estado terminal (enviado OU falhou).
-     */
     useEffect(() => {
         if (!acompanhando) return;
 

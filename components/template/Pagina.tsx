@@ -9,7 +9,7 @@ export default function Pagina (props: PaginaProps) {
      <div className="flex flex-col min-h-screen"> 
         <Cabecalho/>
         <main className={`
-           flex-1 w-[1200px] mx-auto
+           flex-1 max-w-[1200px] w-full mx-auto px-4
            ${props.className || ''} py-10
         `}
         

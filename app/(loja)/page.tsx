@@ -1,21 +1,23 @@
-'use client'
-import Pagina from "@/components/template/Pagina";
-import ContextoCarrinho from "@/data/contexts/ContextoCarrinho";
-import Image from "next/image";
-import useCarrinho from "@/data/hooks/useCarrinho";
 import CartaoProduto from "@/components/produto/CartaoProduto";
-import produtos from "@/data/constants/produtos";
+import Pagina from "@/components/template/Pagina";
+import { listarProdutos } from "@/data/services/api";
 
+export default async function Home() {
+  const produtos = await listarProdutos();
 
-export default function Home() {
   return (
     <Pagina>
-      <div className="flex gap-5 justify-center flex-wrap">
-        {produtos.map(produto => (
-          <CartaoProduto key={produto.id} produto={produto} />
-        ))}
-      </div>
-      
+      {produtos.length === 0 ? (
+        <p className="text-center text-zinc-400">
+          Nenhum produto disponivel no momento.
+        </p>
+      ) : (
+        <div className="flex gap-5 justify-center flex-wrap">
+          {produtos.map((produto) => (
+            <CartaoProduto key={produto.id} produto={produto} />
+          ))}
+        </div>
+      )}
     </Pagina>
   );
 }

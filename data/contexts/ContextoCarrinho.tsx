@@ -27,15 +27,6 @@ const ContextoCarrinho = createContext<ContextoCarrinhoProps>({
     limpar: () => {},
 });
 
-/* ------------------------------------------------------------------ *
- * Store do carrinho, apoiado no localStorage.
- *
- * O estado nao mora em useState: o dono do dado e o localStorage, e o
- * componente apenas assina as mudancas com useSyncExternalStore. Assim a
- * leitura acontece depois da hidratacao (nunca no estado inicial, que
- * precisa bater com o HTML do servidor) sem setState dentro de efeito.
- * ------------------------------------------------------------------ */
-
 function ehItemValido(valor: unknown): valor is ItemCarrinho {
     if (typeof valor !== 'object' || valor === null) return false;
     const item = valor as Partial<ItemCarrinho>;

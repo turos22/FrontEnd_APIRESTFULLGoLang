@@ -1,9 +1,12 @@
+'use client';
+
 import { IconShoppingCart } from "@tabler/icons-react";
-import Logo from "./Logo";
 import Link from "next/link";
 import useCarrinho from "@/data/hooks/useCarrinho";
 
 export default function Carrinho () {
+    
+
     const {quantidadeItens} = useCarrinho();
     return (
        <Link href="/carrinho">

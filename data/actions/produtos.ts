@@ -16,9 +16,6 @@ export async function SalvarProduto(
     const precoEmReais = Number(String(dados.get('preco') ?? '').replace(',', '.'));
     const quantidade = Number(dados.get('quantidade') ?? 0);
 
-    // Espelha `VerificarProdut` (products/handler.go:42), que devolve 400 com
-    // nome, descricao, preco ou quantidade vazios/zerados. Validar aqui poupa
-    // um round-trip e devolve mensagem em portugues.
     if (!nome) return { erro: 'Informe o nome do produto.' };
     if (!descricao) return { erro: 'Informe a descricao do produto.' };
     if (!Number.isFinite(precoEmReais) || precoEmReais <= 0) {
