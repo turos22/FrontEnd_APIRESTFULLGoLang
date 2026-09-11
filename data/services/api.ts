@@ -1,6 +1,7 @@
 import Produto from '@/data/models/Produtos';
 import Usuario from '@/data/models/Usuario';
 import Order from '../models/Order';
+import { StatusPedido, ehStatusDePedido } from '@/data/models/StatusPedido';
 import { cookies } from 'next/headers';
 
 const URL_BASE = process.env.API_URL ?? 'http://localhost:8080';
@@ -48,8 +49,10 @@ function paraProduto(dto: ProdutoDaApi): Produto {
  *
  * `VerificarProdut` (products/handler.go:42) rejeita com 400 se faltar
  * description, price_in_cents, quantity OU category_id. Nao da para omitir
- * nenhum deles. `category_id` esta fixo em 1 porque a API nao expoe rota de
- * categorias — ver B5 em docs/superpowers/plans/2026-09-11-bloqueios-backend-go.md.
+ * nenhum deles. `category_id` fica fixo em 1 (Eletronicos): GET /categories
+ * ja existe no backend, mas nenhuma tela do front exibe ou filtra por
+ * categoria hoje, entao um seletor de verdade nao muda nada visivel —
+ * fica para quando o catalogo precisar filtrar por categoria.
  *
  * `active: true` e obrigatorio: `ListProducts` filtra `WHERE active = true`.
  */
@@ -76,7 +79,15 @@ interface ItemDePedidoDaApi {
 interface PedidoDaApi {
     order_id: number;
     customer_id: number;
+    status: string;
     items: ItemDePedidoDaApi[] | null;
+}
+
+// NULL no banco vira "" na resposta (Status.String de um pgtype.Text) —
+// cai no fallback abaixo. Pedido criado antes do worker existir tambem
+// bate aqui.
+function paraStatus(valor: unknown): StatusPedido {
+    return ehStatusDePedido(valor) ? valor : 'pendente';
 }
 
 function paraPedido(dto: PedidoDaApi): Order {
@@ -87,6 +98,7 @@ function paraPedido(dto: PedidoDaApi): Order {
             produtoId: item.product_id,
             quantidade: item.quantity,
         })),
+        status: paraStatus(dto.status),
     };
 }
 
@@ -268,7 +280,6 @@ export async function GetOrderById(id: number): Promise<Order | null> {
     }
 }
 
-/** BLOQUEADA pelo item 2 da secao 2 — `/orders/me` devolve 400 sempre. */
 export async function GetOrdersMe(): Promise<Order[] | null> {
     const jwt = await pegarJWT();
     if (!jwt) return null;
@@ -284,7 +295,6 @@ export async function GetOrdersMe(): Promise<Order[] | null> {
     }
 }
 
-/** BLOQUEADA pelo item 1 da secao 2 — `/me/products` devolve 400 sempre. */
 export async function GetMeProducts(): Promise<Produto[] | null> {
     const jwt = await pegarJWT();
     if (!jwt) return null;
@@ -333,7 +343,6 @@ export async function PatchProduct(produto: Produto): Promise<Produto | null> {
     }
 }
 
-/** BLOQUEADA pelo item 3 da secao 2 — `DELETE /products` devolve 400 sempre. */
 export async function DeleteProduct(id: number): Promise<void | null> {
     const jwt = await pegarJWT();
     if (!jwt) return null;
