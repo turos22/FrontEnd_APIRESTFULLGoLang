@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useUsuario } from "@/data/contexts/ContextoUsuario";
+import { Sair } from "@/data/actions/autenticacao";
 import Carrinho from "./Carrinho";
 
 const ESTILO_LINK = "text-sm text-zinc-400 hover:text-zinc-100 transition";
@@ -31,6 +32,12 @@ export default function AcoesDoUsuario() {
 
             {usuario && (
                 <Link href="/me" className={ESTILO_LINK}>Ola, {usuario.name}</Link>
+            )}
+
+            {usuario && (
+                <form action={Sair}>
+                    <button type="submit" className={ESTILO_LINK}>Sair</button>
+                </form>
             )}
         </div>
     );

@@ -1,7 +1,7 @@
 'use server'
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { CadastrarUsuario, ErroDeApi, Logar } from '@/data/services/api';
+import { CadastrarUsuario, ErroDeApi, Logar, Logout } from '@/data/services/api';
 
 export type EstadoErro = {erro : string} | null;
 
@@ -66,4 +66,14 @@ export async function Cadastrar(estadoAnterior: EstadoErro, FormData: FormData):
     else{
         return {erro : 'Preencha todos os campos'}
     }
+}
+
+export async function Sair(): Promise<void> {
+    // Logout() ja engole a propria falha — mesmo com a API fora do ar,
+    // o cookie que o Next guarda para o navegador precisa sumir.
+    await Logout();
+
+    const cookieStore = await cookies();
+    cookieStore.delete('jwt');
+    redirect('/');
 }

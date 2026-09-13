@@ -51,6 +51,16 @@ export default function FormularioProduto({ produto }: { produto?: Produto | nul
                 className={ESTILO_CAMPO}
             />
 
+            <label htmlFor="imagemUrl" className="text-sm text-zinc-400">URL da imagem (opcional)</label>
+            <input
+                id="imagemUrl"
+                name="imagemUrl"
+                type="url"
+                placeholder="https://exemplo.com/foto.jpg"
+                defaultValue={produto?.imagemUrl ?? ''}
+                className={ESTILO_CAMPO}
+            />
+
             {estado?.erro && (
                 <p role="alert" className="flex items-center gap-2 text-sm text-red-500">
                     <IconAlertCircle size={18} stroke={1.5} />

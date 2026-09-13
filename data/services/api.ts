@@ -218,9 +218,21 @@ export async function CadastrarUsuario(Usuario : Usuario): Promise<string | null
     }
 }
 
-// export async function Logout(): Promise<void> {
-// //
-// }
+export async function Logout(): Promise<void> {
+    const jwt = await pegarJWT();
+    if (!jwt) return;
+
+    try {
+        await requisitar<null>('/auth/logout', {
+            method: 'POST',
+            headers: { Cookie: `jwt=${jwt}` },
+        });
+    } catch {
+        // Best-effort: o JWT e stateless, a API nao mantem sessao pra
+        // revogar. O que realmente desloga o usuario e apagar o cookie
+        // que o Next guarda para o navegador, feito por quem chama isso.
+    }
+}
 
 export async function Me(): Promise<Usuario | null> {
     const jwt = await pegarJWT();
@@ -244,25 +256,26 @@ export interface ItemParaPedido {
     quantidade: number;
 }
 
+// null so significa "sem sessao". Um 404 aqui e ErrProductNotFound do Go —
+// produto do carrinho que nao existe mais — e um erro bem diferente disso,
+// entao propaga como ErroDeApi em vez de virar null tambem: CriarPedido
+// precisa distinguir os dois casos pra nao mostrar "sessao expirada" pra
+// quem so tinha um item furado no carrinho.
 export async function PostOrder(itens: ItemParaPedido[]): Promise<Order | null> {
     const jwt = await pegarJWT();
     if (!jwt) return null;
-    try {
-        const resposta = await requisitar<PedidoDaApi>('/orders', {
-            method: 'POST',
-            body: JSON.stringify({
-                items: itens.map((item) => ({
-                    product_id: item.produtoId,
-                    quantity: item.quantidade,
-                })),
-            }),
-            headers: { 'Content-Type': 'application/json', Cookie: `jwt=${jwt}` },
-        });
-        return paraPedido(resposta.data);
-    } catch (erro) {
-        if (erro instanceof ErroDeApi && erro.status === 404) return null;
-        throw erro;
-    }
+
+    const resposta = await requisitar<PedidoDaApi>('/orders', {
+        method: 'POST',
+        body: JSON.stringify({
+            items: itens.map((item) => ({
+                product_id: item.produtoId,
+                quantity: item.quantidade,
+            })),
+        }),
+        headers: { 'Content-Type': 'application/json', Cookie: `jwt=${jwt}` },
+    });
+    return paraPedido(resposta.data);
 }
 
 export async function GetOrderById(id: number): Promise<Order | null> {

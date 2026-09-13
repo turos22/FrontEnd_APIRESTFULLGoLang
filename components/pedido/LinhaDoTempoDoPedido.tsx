@@ -4,7 +4,6 @@ import { useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { ETAPAS_DO_PEDIDO, EtapaDoPedido, StatusPedido, STATUS_FALHOU } from '@/data/models/StatusPedido';
 
-const INTERVALO_MS = 3000;
 const ETAPA_FINAL: EtapaDoPedido = 'enviado';
 
 const ROTULOS: Record<EtapaDoPedido, string> = {
@@ -19,14 +18,14 @@ export default function LinhaDoTempoDoPedido({ status }: { status: StatusPedido 
     const [verificando, iniciarVerificacao] = useTransition();
 
     const falhou = status === STATUS_FALHOU;
-    const acompanhando = !falhou && status !== ETAPA_FINAL;
+    const acompanhando = !falhou && status !==  'enviado';
 
     useEffect(() => {
         if (!acompanhando) return;
 
         const intervalo = setInterval(() => {
             iniciarVerificacao(() => roteador.refresh());
-        }, INTERVALO_MS);
+        }, 3000);
 
         return () => clearInterval(intervalo);
     }, [acompanhando, roteador, iniciarVerificacao]);

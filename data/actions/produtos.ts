@@ -15,6 +15,7 @@ export async function SalvarProduto(
     const descricao = String(dados.get('descricao') ?? '').trim();
     const precoEmReais = Number(String(dados.get('preco') ?? '').replace(',', '.'));
     const quantidade = Number(dados.get('quantidade') ?? 0);
+    const imagemUrl = String(dados.get('imagemUrl') ?? '').trim();
 
     if (!nome) return { erro: 'Informe o nome do produto.' };
     if (!descricao) return { erro: 'Informe a descricao do produto.' };
@@ -24,6 +25,10 @@ export async function SalvarProduto(
     if (!Number.isInteger(quantidade) || quantidade <= 0) {
         return { erro: 'Quantidade precisa ser inteiro maior que zero.' };
     }
+    // Campo opcional: so valida a forma se algo foi digitado.
+    if (imagemUrl && !/^https?:\/\//i.test(imagemUrl)) {
+        return { erro: 'URL da imagem precisa comecar com http:// ou https://.' };
+    }
 
     const produto = {
         id,
@@ -31,7 +36,7 @@ export async function SalvarProduto(
         descricao,
         precoEmCentavos: Math.round(precoEmReais * 100),
         quantidade,
-        imagemUrl: null,
+        imagemUrl: imagemUrl || null,
     };
 
     try {
