@@ -256,11 +256,6 @@ export interface ItemParaPedido {
     quantidade: number;
 }
 
-// null so significa "sem sessao". Um 404 aqui e ErrProductNotFound do Go —
-// produto do carrinho que nao existe mais — e um erro bem diferente disso,
-// entao propaga como ErroDeApi em vez de virar null tambem: CriarPedido
-// precisa distinguir os dois casos pra nao mostrar "sessao expirada" pra
-// quem so tinha um item furado no carrinho.
 export async function PostOrder(itens: ItemParaPedido[]): Promise<Order | null> {
     const jwt = await pegarJWT();
     if (!jwt) return null;
@@ -339,7 +334,6 @@ export async function PostProduct(produto: Produto): Promise<Produto | null> {
     }
 }
 
-/** A rota nao tem {id}: o handler le o id do corpo. */
 export async function PatchProduct(produto: Produto): Promise<Produto | null> {
     const jwt = await pegarJWT();
     if (!jwt) return null;
